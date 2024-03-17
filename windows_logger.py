@@ -18,7 +18,7 @@ class WindowLogger:
             "is_minimized": window.isMinimized,
             "is_maximized": window.isMaximized,
             # "display": window.getDisplay()[0],
-            "current_time": time.time(),
+            "timestamp": time.time(),
             "created_time": time.time(),
         }
 
@@ -26,9 +26,9 @@ class WindowLogger:
             windowsfile.write(f"{self.d}\n")  
 
     def log(self, key, value):
-        current_time = time.time()
+        timestamp = time.time()
         self.d[key] = value
-        self.d["current_time"] = current_time
+        self.d["timestamp"] = timestamp
             
         with open("windowsfile.txt", 'a', encoding="utf-8") as windowsfile:
             windowsfile.write(f"{self.d}\n")  

