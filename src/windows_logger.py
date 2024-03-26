@@ -1,6 +1,48 @@
 import pywinctl as pwc
 import time
 
+import os
+from datetime import datetime
+from tzlocal import get_localzone
+import sys
+import json
+
+def ensure_dir_exists(path):
+    if not os.path.exists(path):
+        os.makedirs(path)
+
+def get_desktop_path():
+    # For Windows
+    if os.name == 'nt':
+        desktop = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop')
+    # For MacOS
+    elif os.name == 'posix':
+        desktop = os.path.join(os.path.join(os.path.expanduser('~')), 'Desktop')
+    # Adjust as needed for other operating systems
+    else:
+        raise NotImplementedError("This script only supports Windows and MacOS.")
+    return desktop
+
+def log(filename, data):
+    # Specify the path to the 'output' directory on the Desktop
+    output_dir = os.path.join(get_desktop_path(), 'u-log/output'+datetime.today().strftime('%Y%m%d'))
+    
+    # Ensure the 'output' directory exists
+    ensure_dir_exists(output_dir)
+    
+    # Specify the path to the file within the 'output' directory
+    file_path = os.path.join(output_dir, filename)
+    
+    # Get the current timestamp in the local timezone
+    timestamp = datetime.now(tz=get_localzone())
+    data["timestamp"] = timestamp.isoformat()
+    
+
+    # Safely open the file for appending and write the data
+    with open(file_path, 'a', encoding="utf-8") as log:
+        log.write(f"{data}\n")
+
+
 
 class WindowLogger:
 
@@ -8,7 +50,6 @@ class WindowLogger:
         self.window = window
         self.d = {
             "window_id": window._hWnd,
-            # "appname": window.getAppName(),
             "title": window.title,
             "size": window.size,
             "position": window.position,
@@ -17,60 +58,53 @@ class WindowLogger:
             "is_visible": window.isVisible,
             "is_minimized": window.isMinimized,
             "is_maximized": window.isMaximized,
-            # "display": window.getDisplay()[0],
-            "timestamp": time.time(),
-            "created_time": time.time(),
         }
 
-        with open("windowsfile.txt", 'a', encoding="utf-8") as windowsfile:
-            windowsfile.write(f"{self.d}\n")  
+        log("window_logs.txt", self.d)
 
-    def log(self, key, value):
-        timestamp = time.time()
+
+    def event_log(self, key, value):
         self.d[key] = value
-        self.d["timestamp"] = timestamp
-            
-        with open("windowsfile.txt", 'a', encoding="utf-8") as windowsfile:
-            windowsfile.write(f"{self.d}\n")  
+        log("window_logs.txt", self.d)
             
 
 
     # Callback for when the window is no longer alive
     def isAliveCB(self, alive):
-        self.log("is_alive", alive)
+        self.event_log("is_alive", alive)
         existing_windows_id_list.remove(self.window._hWnd)# Remove the window from the list of known windows
 
     # Callback for active status change
     def isActiveCB(self, active):
-        self.log("is_active", active)
+        self.event_log("is_active", active)
 
     # Callback for visible status change
     def isVisibleCB(self, visible):
-        self.log("is_visible", visible)
+        self.event_log("is_visible", visible)
 
     # Callback for minimized status change
     def isMinimizedCB(self, minimized):
-        self.log("is_minimized", minimized)
+        self.event_log("is_minimized", minimized)
 
     # Callback for maximized status change
     def isMaximizedCB(self, maximized):
-        self.log("is_maximized", maximized)
+        self.event_log("is_maximized", maximized)
 
     # Callback for window resize
     def resizedCB(self, size):
-        self.log("size", size)
+        self.event_log("size", size)
 
     # Callback for window movement
     def movedCB(self, pos):
-        self.log("position", pos)
+        self.event_log("position", pos)
 
     # Callback for title change
     def changedTitleCB(self, title):
-        self.log("title", title)
+        self.event_log("title", title)
 
     # Callback for display change
     def changedDisplayCB(self, display):
-        self.log("display", display)
+        self.event_log("display", display)
 
 
 

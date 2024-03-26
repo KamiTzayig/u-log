@@ -30,7 +30,7 @@ chrome.action.onClicked.addListener((tab) => {
 
 async function sendDataToServer(data) {
   try {
-    const response = await fetch('http://127.0.0.1:8000/log', {
+    const response = await fetch('http://127.0.0.1:2226/log', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -67,11 +67,7 @@ async function loadWindowList() {
     return;
     }else{
       const windowList = await chrome.windows.getAll({ populate: true });
-      timestamp = new Date().toISOString();
-      timzone = Intl.DateTimeFormat().resolvedOptions().timeZone;// IANA Timezone Identifier
       let state = {
-        timestamp: timestamp,
-        timezone: timzone,
         windows: windowList.map(window => ({
           id: window.id,
           left: window.left,

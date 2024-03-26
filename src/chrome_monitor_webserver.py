@@ -1,6 +1,8 @@
-import copy
-import time
-from pynput import mouse
+from fastapi import FastAPI, HTTPException, Request
+from pydantic import BaseModel
+import uvicorn
+from fastapi.middleware.cors import CORSMiddleware
+
 import os
 from datetime import datetime
 from tzlocal import get_localzone
@@ -37,51 +39,37 @@ def log(filename, data):
     timestamp = datetime.now(tz=get_localzone())
     data["timestamp"] = timestamp.isoformat()
     
-
+ 
     
     # Safely open the file for appending and write the data
     with open(file_path, 'a', encoding="utf-8") as log:
         log.write(f"{data}\n")
 
+app = FastAPI()
 
-def on_move(x, y):
-    d["position"] = (x, y)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Specify the domains of your extensions here
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+class ExtensionData(BaseModel):
+    windows: list
 
-    log("mouse_logs.txt", d)
+@app.post("/log")
+async def log_extension_data(data: ExtensionData):
 
-def on_click(x, y, button, pressed):
-    if button == mouse.Button.left:
-        d["button_left"] = pressed
-    elif button == mouse.Button.right:
-        d["button_right"] = pressed
-    elif button == mouse.Button.middle:
-        d["button_middle"] = pressed
-    d["position"] = (x, y)
-    log("mouse_logs.txt", d)
+    try:
+        log("chrome_extension_logs.txt", data.model_dump())        
+    except Exception: 
+        print("Error getting char")
 
-def on_scroll(x, y, dx, dy):
-    d["position"] = (x, y)
-    scroll_dict = copy.deepcopy(d)
-    if dy < 0:
-        scroll_dict["scroll_down"] = True
-    else:
-        scroll_dict["scroll_up"] = True
+    # Here you could save the data to a file or database
+    return {"message": "Data received successfully"}
 
-    log("mouse_logs.txt", scroll_dict)
-
-
-d ={
-    "timestamp": time.time(),
-    "position": (0,0),
-    "button_left": False,
-    "button_right": False,
-    "button_middle": False,
-    "scroll_up": False,
-    "scroll_down": False,
-}
-log("mouse_logs.txt", d)
+if __name__ == "__main__":
+    uvicorn.run(app, host="127.0.0.1", port=2226)
 
 
-listener = mouse.Listener(on_move=on_move, on_click=on_click, on_scroll=on_scroll)
-listener.start()
-input("Press Enter to stop...\n")
+
