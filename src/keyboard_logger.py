@@ -37,10 +37,15 @@ def log(filename, data):
     timestamp = datetime.now(tz=get_localzone())
     data["timestamp"] = timestamp.isoformat()
     
+        # Serialize data to a JSON string if it's a dictionary
+    if isinstance(data, dict):
+        data_str = json.dumps(data, ensure_ascii=False)
+    else:
+        data_str = str(data)
     
     # Safely open the file for appending and write the data
     with open(file_path, 'a', encoding="utf-8") as log:
-        log.write(f"{data}\n")
+        log.write(f"{data_str}\n")
 
 
 
@@ -53,7 +58,7 @@ def logKey(key, is_pressed):
         is_dead = key.is_dead,
         combining = key.combining
     elif type(key) == keyboard.Key:
-        id = key.value
+        id = key.value.vk
         value = key.name
         is_dead = (False,)
         combining = None
