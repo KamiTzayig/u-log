@@ -1,0 +1,23 @@
+{
+  "name": "BIGDAVE",
+  "description": "BIGDAVE is watching you",
+  "version": "0.3",
+  "permissions": ["tabs", "windows", "storage"],
+  "background": {
+    "service_worker": "service-worker.js"
+  },
+  "action": {
+    "default_title": "Show tab inspector",
+    "default_icon": {
+      "16": "icons/on.png",
+      "48": "icons/on.png",
+      "128": "icons/on.png"
+    }
+  },
+  "icons": {
+    "16": "icons/on.png",
+    "48": "icons/on.png",
+    "128": "icons/on.png"
+  },
+  "manifest_version": 3
+}
