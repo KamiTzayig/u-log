@@ -32,7 +32,6 @@ except pygame.error:
     
 
 try:
-    # Assuming you have already initialized pygame and the controller
     while True:
         # Your event polling loop here...
 
