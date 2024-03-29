@@ -47,11 +47,15 @@ def log(filename, data):
     with open(file_path, 'a', encoding="utf-8") as log:
         log.write(f"{data_str}\n")
 
-
+INTERVAL = 0.2
+last_time = time.time()
 def on_move(x, y):
-    d["position"] = (x, y)
-
-    log("mouse_logs.txt", d)
+    global last_time
+    current_time = time.time()
+    if current_time - last_time >= INTERVAL:  
+        d["position"] = (x, y)
+        log("mouse_logs.txt", d)
+        last_time = current_time
 
 def on_click(x, y, button, pressed):
     if button == mouse.Button.left:
@@ -71,7 +75,11 @@ def on_scroll(x, y, dx, dy):
     else:
         scroll_dict["scroll_up"] = True
 
-    log("mouse_logs.txt", scroll_dict)
+    global last_time
+    current_time = time.time()
+    if current_time - last_time >= INTERVAL:
+        log("mouse_logs.txt", scroll_dict)
+        last_time = current_time
 
 
 d ={

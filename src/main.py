@@ -27,7 +27,7 @@ def extract_and_run_script(script_name):
 
 if __name__ == "__main__":
 
-    scripts = ["chrome_monitor_webserver.py", "keyboard_logger.py", "mouse_logger.py", "windows_logger.py"]
+    scripts = ["chrome_monitor_webserver.py","controller_logger.py", "keyboard_logger.py", "mouse_logger.py", "windows_logger.py"]
     
     for script in scripts:
         extract_and_run_script(script)
